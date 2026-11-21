@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CivicResolve | AI-Powered Civic Issue Reporting & Resolution Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="#" class="brand" onclick="app.setRole('citizen'); return false;">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <span>CivicResolve</span>
+        <span class="brand-badge">AI Civic OS</span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#report-section" class="active" id="nav-report" onclick="app.showReportView(event);">📢 Report Issue</a></li>
+          <li><a href="#tracking-section" id="nav-tracking" onclick="app.showTrackingView(event);">🔍 Track Complaints</a></li>
+          <li><a href="#admin-section" id="nav-admin" onclick="app.setRole('admin', event);">🏢 Authority Console</a></li>
+          <li><a href="#analytics-section" id="nav-analytics" onclick="app.showAnalyticsView(event);">📊 Civic Analytics</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- AI Status Pill -->
+        <div class="ai-status-pill" id="aiStatusPill" onclick="app.openAiConfigModal()" title="Click to configure Google Gemini API">
+          <span class="ai-dot"></span>
+          <span id="aiStatusText">Gemini AI Active</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+
+        <!-- Role Toggle -->
+        <div class="role-toggle">
+          <button class="role-btn active" id="btnRoleCitizen" onclick="app.setRole('citizen')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Citizen
+          </button>
+          <button class="role-btn" id="btnRoleAdmin" onclick="app.setRole('admin')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Authority
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero-section">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <h1>Transforming Communities with <span>AI-Powered Civic Action</span></h1>
+        <p class="hero-description">
+          CivicResolve eliminates bureaucratic delays. Using Google Gemini, your reported potholes, water leaks, broken streetlights, and waste hazards are instantly classified, prioritized, and routed to the exact city department with guaranteed SLAs.
+        </p>
+        <div class="hero-buttons">
+          <button type="button" class="btn btn-primary" id="heroReportBtn" onclick="app.showReportView(event);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Report an Issue
+          </button>
+          <button type="button" class="btn btn-secondary" id="heroTrackComplaintsBtn" onclick="app.showTrackingView(event);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            Track Complaints (<span id="heroTotalCount">6</span>)
+          </button>
+          <button type="button" class="btn btn-secondary" id="heroAdminBtn" onclick="app.setRole('admin', event);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            Admin Dashboard
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Metric Strip -->
+      <div class="metrics-strip">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Active Complaints</span>
+            <div class="metric-icon" style="background: #eef2ff; color: #4f46e5;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+          </div>
+          <div class="metric-value" id="kpiActiveReports">5</div>
+          <div class="metric-subtitle">Across 6 Municipal Wards</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Critical Urgency</span>
+            <div class="metric-icon" style="background: #fee2e2; color: #ef4444;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+          </div>
+          <div class="metric-value" id="kpiCriticalCount">2</div>
+          <div class="metric-subtitle">Fast-tracked to Field Units</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Average SLA</span>
+            <div class="metric-icon" style="background: #ede9fe; color: #8b5cf6;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+          <div class="metric-value" id="kpiAvgSla">18.5h</div>
+          <div class="metric-subtitle">Target Resolution SLA</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Resolution Rate</span>
+            <div class="metric-icon" style="background: #d1fae5; color: #10b981;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+          </div>
+          <div class="metric-value" id="kpiResolutionRate">83%</div>
+          <div class="metric-subtitle">Audited with Proof Photos</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CITIZEN VIEW CONTAINER -->
+  <div id="citizenViewSection">
+    
+    <!-- Citizen View Subnav Bar -->
+    <div class="citizen-subnav-bar">
+      <div class="container">
+        <div class="citizen-subnav-inner">
+          <button type="button" class="citizen-subnav-btn active" id="subnavReportBtn" onclick="app.showReportView(event);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            📢 Report a Civic Problem
+          </button>
+          <button type="button" class="citizen-subnav-btn" id="subnavTrackingBtn" onclick="app.showTrackingView(event);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            🔍 Track Complaints &amp; Community Feed (<span id="subnavTrackingCount">6</span>)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report an Issue Section -->
+    <section class="section" id="report-section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Report a Civic Problem</h2>
+            <p class="section-subtitle">Submit details with optional photos. Google Gemini AI will classify category, detect public safety hazards, and route to the right department.</p>
+          </div>
+        </div>
+
+        <!-- HACKATHON EVALUATOR QUICK DEMO RIBBON -->
+        <div class="evaluator-ribbon">
+          <div class="evaluator-ribbon-header">
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="badge" style="background: #4f46e5; color: white;">⚡ Hackathon Evaluator Bar</span>
+              <strong style="font-size: 0.92rem; color: #1e1b4b;">1-Click Test Scenarios:</strong>
+              <span style="font-size: 0.82rem; color: #4b5563;">Instantly populate realistic civic issues with photos, AI triage & urgency scoring:</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-ai" onclick="app.quickSubmitDemo('pothole')" style="font-size: 0.78rem; padding: 0.35rem 0.85rem;" title="1-click end-to-end: fills, triages, lodges complaint and generates tracking ID!">
+              🚀 Instant 1-Click Submit &amp; Track
+            </button>
+          </div>
+          <div class="evaluator-chips">
+            <button type="button" class="evaluator-chip" onclick="app.fillScenario('pothole')">
+              🕳️ <strong>Highway Pothole</strong> <span class="badge badge-critical" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Critical 92/100</span>
+            </button>
+            <button type="button" class="evaluator-chip" onclick="app.fillScenario('water')">
+              💧 <strong>Water Main Burst</strong> <span class="badge badge-critical" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Critical 95/100</span>
+            </button>
+            <button type="button" class="evaluator-chip" onclick="app.fillScenario('trash')">
+              🗑️ <strong>Overflowing Dumpster</strong> <span class="badge badge-high" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">High 78/100</span>
+            </button>
+            <button type="button" class="evaluator-chip" onclick="app.fillScenario('streetlight')">
+              💡 <strong>Sparking Live Wire</strong> <span class="badge badge-critical" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Critical 88/100</span>
+            </button>
+            <button type="button" class="evaluator-chip" onclick="app.fillScenario('tree')">
+              🌳 <strong>Fallen Tree Limb</strong> <span class="badge badge-medium" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Medium 62/100</span>
+            </button>
+          </div>
+        </div>
+
+        <form id="reportForm" onsubmit="app.submitIssue(event)">
+          <div class="report-grid">
+            
+            <!-- Left Column: Details & AI Preview -->
+            <div class="card" style="padding: 1.75rem;">
+              <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="background: var(--primary-light); color: var(--primary); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">1</span>
+                Issue Details & AI Triage
+              </h3>
+
+              <div class="form-group">
+                <label class="form-label" for="issueTitle">Issue Title *</label>
+                <input type="text" id="issueTitle" class="form-control" placeholder="e.g., Massive Pothole on 5th Avenue causing motorcycle skid" required oninput="app.scheduleAiPreview()">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="issueDesc">Detailed Description *</label>
+                <textarea id="issueDesc" class="form-control" placeholder="Describe what happened, depth or severity, if near schools/crossings, and public safety impact..." required oninput="app.scheduleAiPreview()"></textarea>
+                <div class="form-hint">Tip: Mention landmarks, severity, or hazards to assist Gemini's urgency calculation.</div>
+              </div>
+
+              <div style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem;">
+                <button type="button" class="btn btn-ai btn-sm" onclick="app.triggerManualAiAnalysis()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  ✨ Analyze with Gemini AI
+                </button>
+                <span id="aiAnalysisStatus" style="font-size: 0.82rem; color: var(--text-muted); align-self: center;">Ready to evaluate</span>
+              </div>
+
+              <!-- AI Live Insights Card -->
+              <div class="ai-insights-box" id="aiInsightsBox">
+                <div class="ai-header-strip">
+                  <div class="ai-tag">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                    <span id="aiEngineLabel">Gemini AI Diagnosis</span>
+                  </div>
+                  <span class="badge" id="aiConfidenceBadge" style="background: white; border: 1px solid #c7d2fe; color: #4338ca;">96% Confidence</span>
+                </div>
+
+                <div class="ai-result-grid">
+                  <div class="ai-result-item">
+                    <div class="ai-result-label">Detected Category</div>
+                    <div class="ai-result-val" id="aiCategoryVal">Roads & Pavements</div>
+                  </div>
+                  <div class="ai-result-item">
+                    <div class="ai-result-label">Urgency & Priority</div>
+                    <div class="ai-result-val" id="aiPriorityVal">
+                      <span class="badge badge-critical" id="aiPriorityBadge">Critical (92/100)</span>
+                    </div>
+                  </div>
+                  <div class="ai-result-item" style="grid-column: span 2;">
+                    <div class="ai-result-label">Recommended Municipal Department</div>
+                    <div class="ai-result-val" style="color: var(--primary);" id="aiDepartmentVal">
+                      Public Works & Road Maintenance (SLA: 12h)
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ai-reasoning-quote" id="aiReasoningVal">
+                  "High-speed road hazard with documented skidding incidents. Proximity to pedestrian crossing makes it a severe public safety emergency requiring immediate barricading and patch work."
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 1.25rem;">
+                <label class="form-label" for="issueCategorySelect">Category (Auto-Detected / Adjustable)</label>
+                <select id="issueCategorySelect" class="form-control">
+                  <option value="Roads & Pavements">Roads & Pavements (Potholes, Asphalt, Sidewalks)</option>
+                  <option value="Sanitation & Waste">Sanitation & Waste (Garbage, Dumpsters, Stench)</option>
+                  <option value="Water Supply & Drainage">Water Supply & Drainage (Burst Pipes, Sewage, Flooding)</option>
+                  <option value="Electrical & Streetlights">Electrical & Streetlights (Blackouts, Live Wires, Poles)</option>
+                  <option value="Parks & Public Spaces">Parks & Public Spaces (Fallen Trees, Broken Playgrounds)</option>
+                  <option value="Traffic & Transportation">Traffic & Transportation (Signals, Missing Signs)</option>
+                  <option value="Public Health & Safety">Public Health & Safety (Stagnant Water, Vectors)</option>
+                </select>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label class="form-label" for="citizenName">Your Name</label>
+                  <input type="text" id="citizenName" class="form-control" placeholder="e.g., Marcus Vance">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="citizenContact">Contact Email / Phone</label>
+                  <input type="text" id="citizenContact" class="form-control" placeholder="For resolution alerts">
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Location & Photo -->
+            <div class="card" style="padding: 1.75rem; display: flex; flex-direction: column;">
+              <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="background: var(--primary-light); color: var(--primary); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">2</span>
+                Location & Visual Evidence
+              </h3>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <label class="form-label" for="issueLocation" style="margin-bottom: 0;">Location Address / Landmark *</label>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="app.detectGpsLocation()" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                    📍 Detect GPS
+                  </button>
+                </div>
+                <input type="text" id="issueLocation" class="form-control" placeholder="e.g., 5th Main Ave & 12th Cross, Downtown Metro Sector" required>
+                
+                <!-- Quick Location Presets -->
+                <div class="preset-chips" style="margin-top: 0.4rem;">
+                  <button type="button" class="preset-chip" onclick="app.setQuickLocation('Downtown Metro Sector, 5th Main Ave', 37.7749, -122.4194)">Downtown Metro</button>
+                  <button type="button" class="preset-chip" onclick="app.setQuickLocation('North Suburb Ward, 45 School Rd', 37.7833, -122.4167)">North Suburb School</button>
+                  <button type="button" class="preset-chip" onclick="app.setQuickLocation('East Market Square, Block C', 37.7650, -122.4250)">East Market</button>
+                  <button type="button" class="preset-chip" onclick="app.setQuickLocation('Riverside Ward, Oak St & Elm', 37.7700, -122.4300)">Riverside Ward</button>
+                </div>
+
+                <!-- Interactive Map Pin Simulation -->
+                <div class="map-picker-container" id="mapPicker" onclick="app.handleMapClick(event)" title="Click anywhere to pin exact issue coordinates">
+                  <svg class="map-svg-grid" viewBox="0 0 400 200" preserveAspectRatio="none">
+                    <defs>
+                      <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#cbd5e1" stroke-width="0.8"/>
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="#f1f5f9"/>
+                    <rect width="100%" height="100%" fill="url(#gridPattern)"/>
+                    <!-- Simulated Roads and Zones -->
+                    <path d="M 0 70 Q 200 110 400 60" fill="none" stroke="#94a3b8" stroke-width="12"/>
+                    <path d="M 0 70 Q 200 110 400 60" fill="none" stroke="#f8fafc" stroke-width="8"/>
+                    <path d="M 160 0 L 220 200" fill="none" stroke="#94a3b8" stroke-width="10"/>
+                    <path d="M 160 0 L 220 200" fill="none" stroke="#f8fafc" stroke-width="6"/>
+                    <circle cx="80" cy="140" r="30" fill="#d1fae5" opacity="0.6"/>
+                    <text x="60" y="145" font-size="10" fill="#065f46" font-weight="600">Riverside Park</text>
+                    <circle cx="320" cy="40" r="24" fill="#fee2e2" opacity="0.6"/>
+                    <text x="295" y="44" font-size="9" fill="#991b1b" font-weight="600">School Zone</text>
+                    <rect x="260" y="120" width="80" height="50" rx="4" fill="#e0e7ff" opacity="0.7"/>
+                    <text x="275" y="150" font-size="10" fill="#3730a3" font-weight="600">Metro Hub</text>
+                  </svg>
+                  
+                  <div class="map-pin" id="mapPinEl" style="left: 50%; top: 50%;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#ef4444" stroke="#ffffff" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                      <circle cx="12" cy="10" r="3" fill="#ffffff"/>
+                    </svg>
+                  </div>
+                  
+                  <div class="map-overlay-info">
+                    <span id="mapCoordsText">📍 Lat: 37.7749, Lng: -122.4194</span>
+                    <span>Click map to re-pin</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Photo Upload & Presets -->
+              <div class="form-group" style="margin-top: 0.5rem;">
+                <label class="form-label">Attach Photo (Optional)</label>
+                
+                <div class="preset-chips" style="margin-bottom: 0.5rem;">
+                  <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Attach Demo Photo:</span>
+                  <button type="button" class="preset-chip" onclick="app.setSamplePhoto('pothole')">📷 Pothole</button>
+                  <button type="button" class="preset-chip" onclick="app.setSamplePhoto('water')">📷 Burst Pipe</button>
+                  <button type="button" class="preset-chip" onclick="app.setSamplePhoto('trash')">📷 Garbage</button>
+                  <button type="button" class="preset-chip" onclick="app.setSamplePhoto('wire')">📷 Live Wire</button>
+                </div>
+
+                <div class="photo-dropzone" id="photoDropzone" onclick="document.getElementById('photoFileInput').click()">
+                  <input type="file" id="photoFileInput" accept="image/*" style="display: none;" onchange="app.handleFileUpload(event)">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="margin-bottom: 0.35rem;">
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                    <circle cx="9" cy="9" r="2"/>
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                  </svg>
+                  <div style="font-size: 0.88rem; font-weight: 600; color: var(--text-main);">Click or Drag & Drop Photo Here</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">PNG, JPG, WebP supported</div>
+                </div>
+
+                <div class="photo-preview" id="photoPreviewBox">
+                  <img id="photoPreviewImg" src="" alt="Complaint photo preview">
+                  <button type="button" class="photo-remove-btn" onclick="app.removePhoto()" title="Remove image">&times;</button>
+                </div>
+              </div>
+
+              <div style="margin-top: auto; padding-top: 1rem;">
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%; padding: 0.85rem; font-size: 1.05rem;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  Submit Civic Complaint
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Public Issue Feed & Live Tracking Section -->
+    <section class="section" id="tracking-section" style="background: white; border-top: 1px solid var(--border);">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Community Issue Tracker</h2>
+            <p class="section-subtitle">Transparent real-time status of civic complaints across municipal departments.</p>
+          </div>
+          <div>
+            <span style="font-size: 0.88rem; color: var(--text-muted);">Showing <strong id="filterCount">6</strong> issues</span>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-top">
+            <div class="search-input-group">
+              <span class="search-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </span>
+              <input type="text" class="form-control search-input" id="searchKeyword" placeholder="Search by title, address, or tracking code (e.g., CR-2026-0101)..." oninput="app.filterIssues()">
+            </div>
+
+            <div class="filter-selects">
+              <select class="filter-select" id="filterDept" onchange="app.filterIssues()">
+                <option value="all">All Departments</option>
+                <option value="Public Works & Road Maintenance">Public Works & Roads</option>
+                <option value="Sanitation & Waste Management">Sanitation & Waste</option>
+                <option value="Water Supply & Sewerage Board">Water & Sewerage</option>
+                <option value="Electrical & Streetlight Authority">Electrical & Streetlights</option>
+                <option value="Parks, Trees & Horticulture">Parks & Trees</option>
+              </select>
+
+              <select class="filter-select" id="filterPriority" onchange="app.filterIssues()">
+                <option value="all">All Priorities</option>
+                <option value="Critical">🔴 Critical Only</option>
+                <option value="High">🟠 High Only</option>
+                <option value="Medium">🔵 Medium Only</option>
+                <option value="Low">⚪ Low Only</option>
+              </select>
+
+              <select class="filter-select" id="filterSort" onchange="app.filterIssues()">
+                <option value="newest">Sort: Newest First</option>
+                <option value="priority">Sort: Urgency (Highest)</option>
+                <option value="upvotes">Sort: Most Upvoted</option>
+                <option value="oldest">Sort: Oldest First</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Status Tabs -->
+          <div class="status-tabs">
+            <button class="status-tab active" data-status="all" onclick="app.setStatusFilter('all')">All Status (<span id="countAll">6</span>)</button>
+            <button class="status-tab" data-status="Reported" onclick="app.setStatusFilter('Reported')">Reported (<span id="countReported">2</span>)</button>
+            <button class="status-tab" data-status="Under Review" onclick="app.setStatusFilter('Under Review')">Under Review (<span id="countReview">1</span>)</button>
+            <button class="status-tab" data-status="In Progress" onclick="app.setStatusFilter('In Progress')">In Progress (<span id="countProgress">2</span>)</button>
+            <button class="status-tab" data-status="Resolved" onclick="app.setStatusFilter('Resolved')">Resolved (<span id="countResolved">1</span>)</button>
+          </div>
+        </div>
+
+        <!-- Issue Cards Grid -->
+        <div class="issues-grid" id="issuesGrid">
+          <!-- Populated dynamically by JavaScript -->
+        </div>
+
+        <div id="noIssuesFound" class="empty-state" style="display: none;">
+          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-title">No Civic Issues Found</div>
+          <div class="empty-state-desc">Try clearing your search query or selecting a different status filter.</div>
+        </div>
+
+      </div>
+    </section>
+
+  </div> <!-- End Citizen View -->
+
+
+  <!-- AUTHORITY / ADMIN MANAGEMENT CONSOLE SECTION -->
+  <div id="adminViewSection" style="display: none;">
+    <section class="section" id="admin-section">
+      <div class="container">
+        
+        <!-- Admin Bar Header -->
+        <div style="background: #1e1b4b; color: white; padding: 1.5rem 2rem; border-radius: var(--radius-lg); margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span class="badge" style="background: #3730a3; color: #c7d2fe; border: 1px solid #4f46e5;">Municipal Control Room</span>
+              <span style="font-size: 0.8rem; color: #a5b4fc;">• Live Dispatch Operations</span>
+            </div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em;">Authority Management & Triage Console</h2>
+            <p style="font-size: 0.9rem; color: #c7d2fe; max-width: 620px;">Review Gemini AI triage recommendations, deploy field repair crews, update resolution lifecycles, and audit photo verifications.</p>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCsvReport()" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export CSV
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="app.resetDemoData()" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              Reset Demo
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="app.setRole('citizen'); location.hash = '#report-section';">
+              Switch to Citizen View
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin View Switcher & Department Filter -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-primary btn-sm" id="btnAdminViewTable" onclick="app.setAdminViewMode('table')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+              Table View
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btnAdminViewKanban" onclick="app.setAdminViewMode('kanban')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="6" height="16" x="3" y="4" rx="1"/><rect width="6" height="10" x="11" y="4" rx="1"/><rect width="6" height="12" x="19" y="4" rx="1"/></svg>
+              Kanban Board
+            </button>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem;">
+            <select class="filter-select" id="adminDeptFilter" onchange="app.renderAdminView()">
+              <option value="all">All City Departments</option>
+              <option value="Public Works & Road Maintenance">Public Works & Roads</option>
+              <option value="Sanitation & Waste Management">Sanitation & Waste</option>
+              <option value="Water Supply & Sewerage Board">Water Supply & Sewerage</option>
+              <option value="Electrical & Streetlight Authority">Electrical & Streetlights</option>
+              <option value="Parks, Trees & Horticulture">Parks & Trees</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Admin Table View -->
+        <div id="adminTableView" class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Issue & Location</th>
+                <th>Category</th>
+                <th>AI Urgency</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Assigned Crew</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Admin Kanban Board View -->
+        <div id="adminKanbanView" class="kanban-board" style="display: none;">
+          <!-- Column: Reported -->
+          <div class="kanban-col col-reported">
+            <div class="kanban-col-header">
+              <div class="kanban-col-title">
+                <span style="color: var(--status-reported);">●</span> Reported
+              </div>
+              <span class="kanban-col-count" id="kanbanCountReported">0</span>
+            </div>
+            <div class="kanban-cards" id="kanbanCardsReported"></div>
+          </div>
+
+          <!-- Column: Under Review -->
+          <div class="kanban-col col-review">
+            <div class="kanban-col-header">
+              <div class="kanban-col-title">
+                <span style="color: var(--status-review);">●</span> Under Review
+              </div>
+              <span class="kanban-col-count" id="kanbanCountReview">0</span>
+            </div>
+            <div class="kanban-cards" id="kanbanCardsReview"></div>
+          </div>
+
+          <!-- Column: In Progress -->
+          <div class="kanban-col col-progress">
+            <div class="kanban-col-header">
+              <div class="kanban-col-title">
+                <span style="color: var(--status-progress);">●</span> In Progress
+              </div>
+              <span class="kanban-col-count" id="kanbanCountProgress">0</span>
+            </div>
+            <div class="kanban-cards" id="kanbanCardsProgress"></div>
+          </div>
+
+          <!-- Column: Resolved -->
+          <div class="kanban-col col-resolved">
+            <div class="kanban-col-header">
+              <div class="kanban-col-title">
+                <span style="color: var(--status-resolved);">●</span> Resolved
+              </div>
+              <span class="kanban-col-count" id="kanbanCountResolved">0</span>
+            </div>
+            <div class="kanban-cards" id="kanbanCardsResolved"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div> <!-- End Admin Section -->
+
+
+  <!-- CIVIC ANALYTICS SECTION -->
+  <section class="section" id="analytics-section" style="background: var(--bg-main); border-top: 1px solid var(--border);">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Civic Intelligence & Department Metrics</h2>
+          <p class="section-subtitle">Real-time analytical insights derived from Gemini AI categorizations and resolution turnaround.</p>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- Issues by Category Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <span>Issues by Civic Domain</span>
+            <span style="font-size: 0.8rem; color: var(--text-light); font-weight: normal;">Live Tally</span>
+          </div>
+          <div class="bar-chart" id="chartCategoryBars">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Priority Breakdown Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <span>Public Safety Urgency Distribution</span>
+            <span style="font-size: 0.8rem; color: var(--text-light); font-weight: normal;">Severity Breakdown</span>
+          </div>
+          <div class="bar-chart" id="chartPriorityBars">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Department Workload -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <span>Department Operations Load</span>
+            <span style="font-size: 0.8rem; color: var(--text-light); font-weight: normal;">Assigned Cases</span>
+          </div>
+          <div class="bar-chart" id="chartDeptBars">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Municipal Hotspots & SLA Performance -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <span>Municipal Service Performance</span>
+            <span class="badge badge-status-resolved">Target Met: 94%</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="background: var(--bg-subtle); padding: 1rem; border-radius: var(--radius-md);">
+              <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.35rem;">Average Emergency SLA</div>
+              <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">8.2 Hours</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">For Critical hazards (Potholes, Burst Pipes, Live Wires)</div>
+            </div>
+
+            <div style="background: var(--bg-subtle); padding: 1rem; border-radius: var(--radius-md);">
+              <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.35rem;">Community Hotspot Zones</div>
+              <div style="font-size: 0.85rem; color: #334155;">
+                • <strong>Downtown Metro Sector:</strong> Road infrastructure & Potholes<br>
+                • <strong>North Suburb Ward:</strong> Water conduit maintenance<br>
+                • <strong>East Market Square:</strong> Sanitation & Dumpster clearances
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="background: white; border-top: 1px solid var(--border); padding: 2.5rem 0; margin-top: 2rem;">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.65rem;">
+        <div class="brand-icon" style="width: 28px; height: 28px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <span style="font-weight: 700; color: var(--text-main);">CivicResolve</span>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">— AI-Powered Civic Issue Reporting and Resolution Platform</span>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-light);">
+        Powered by Google Gemini 2.0 & Google Antigravity
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. ISSUE DETAIL & TIMELINE MODAL -->
+  <div class="modal-overlay" id="issueDetailModal">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span class="tracking-pill" id="modalTrackingCode">CR-2026-0101</span>
+          <span class="badge" id="modalStatusBadge">In Progress</span>
+          <span class="badge" id="modalPriorityBadge">Critical</span>
+        </div>
+        <button class="modal-close" onclick="app.closeModal('issueDetailModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <h3 id="modalTitle" style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-main);">Issue Title</h3>
+        
+        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="modalLocation">Location Address</span>
+          <span>•</span>
+          <span id="modalReportedTime">Reported 1 day ago</span>
+          <span>•</span>
+          <span id="modalReporterName">By Marcus Vance</span>
+        </div>
+
+        <!-- Before / After Photos (if resolved) or Single Photo -->
+        <div id="modalPhotoContainer" style="margin-bottom: 1.25rem;">
+          <!-- Populated by JS -->
+        </div>
+
+        <div style="background: var(--bg-subtle); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Citizen Complaint</div>
+          <p id="modalDescription" style="font-size: 0.95rem; color: var(--text-main); line-height: 1.5;"></p>
+        </div>
+
+        <!-- Gemini AI Diagnosis Card in Modal -->
+        <div class="ai-insights-box" style="margin-top: 0; margin-bottom: 1.5rem;">
+          <div class="ai-header-strip">
+            <div class="ai-tag">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+              Google Gemini Triage Audit
+            </div>
+            <span class="badge" id="modalAiConfidence" style="background: white; border: 1px solid #c7d2fe; color: #4338ca;">Confidence: 96%</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div class="ai-result-item">
+              <div class="ai-result-label">Assigned Department</div>
+              <div class="ai-result-val" id="modalAiDepartment" style="color: var(--primary);">Public Works & Roads</div>
+            </div>
+            <div class="ai-result-item">
+              <div class="ai-result-label">Assigned Field Crew</div>
+              <div class="ai-result-val" id="modalAssignedCrew">Downtown Asphalt Crew #4</div>
+            </div>
+          </div>
+
+          <div class="ai-reasoning-quote" id="modalAiReasoning">
+            AI reasoning text
+          </div>
+
+          <div id="modalHazardsList" style="margin-top: 0.75rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <!-- Hazard tags -->
+          </div>
+        </div>
+
+        <!-- Lifecycle Audit Timeline -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main); display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Resolution Audit Trail
+          </h4>
+          <div class="timeline" id="modalTimeline">
+            <!-- Timeline items populated by JS -->
+          </div>
+        </div>
+
+        <!-- Citizen Comments & Updates Thread -->
+        <div>
+          <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main); display: flex; align-items: center; gap: 0.4rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Official Updates & Citizen Comments
+          </h4>
+          
+          <div id="modalCommentsList" style="margin-bottom: 1rem;">
+            <!-- Comments -->
+          </div>
+
+          <form onsubmit="app.submitComment(event)">
+            <input type="hidden" id="commentIssueId" value="">
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" class="form-control" id="commentInput" placeholder="Add an official update or citizen observation..." required>
+              <button type="submit" class="btn btn-primary btn-sm" style="white-space: nowrap;">Post Update</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="app.closeModal('issueDetailModal')">Close</button>
+        <button type="button" class="btn btn-primary" id="modalAdminActionBtn" onclick="app.openAdminModalFromDetail()">
+          ⚙️ Manage Resolution
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 2. ADMIN STATUS & RESOLUTION MODAL -->
+  <div class="modal-overlay" id="adminManageModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Authority Action: <span id="adminModalTrackingCode">CR-2026-0101</span></h3>
+        <button class="modal-close" onclick="app.closeModal('adminManageModal')">&times;</button>
+      </div>
+
+      <form onsubmit="app.submitAdminUpdate(event)">
+        <input type="hidden" id="adminIssueId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="adminStatusSelect">Update Resolution Status *</label>
+            <select id="adminStatusSelect" class="form-control" required>
+              <option value="Reported">Reported (Pending Triage)</option>
+              <option value="Under Review">Under Review (Inspecting)</option>
+              <option value="In Progress">In Progress (Field Crew Dispatched)</option>
+              <option value="Resolved">Resolved (Repairs Verified)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="adminDeptSelect">Department Assignment</label>
+            <select id="adminDeptSelect" class="form-control">
+              <option value="Public Works & Road Maintenance">Public Works & Road Maintenance</option>
+              <option value="Sanitation & Waste Management">Sanitation & Waste Management</option>
+              <option value="Water Supply & Sewerage Board">Water Supply & Sewerage Board</option>
+              <option value="Electrical & Streetlight Authority">Electrical & Streetlight Authority</option>
+              <option value="Parks, Trees & Horticulture">Parks, Trees & Horticulture</option>
+              <option value="Traffic Management & Signage">Traffic Management & Signage</option>
+              <option value="Public Health & Vector Control">Public Health & Vector Control</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="adminAssignedTeam">Assign Response Team / Crew</label>
+            <input type="text" id="adminAssignedTeam" class="form-control" placeholder="e.g., Downtown Asphalt Repair Crew #4">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="adminNotes">Official Resolution Note / Citizen Broadcast</label>
+            <textarea id="adminNotes" class="form-control" placeholder="Provide details on action taken, equipment dispatched, or resolution completion..."></textarea>
+          </div>
+
+          <!-- Resolution Proof Photo (For Resolved) -->
+          <div class="form-group" id="resolutionPhotoGroup">
+            <label class="form-label">Attach Resolution Proof Photo (After Repair)</label>
+            <div class="preset-chips" style="margin-bottom: 0.5rem;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Attach Proof:</span>
+              <button type="button" class="preset-chip" onclick="app.setResolutionProofPhoto('repaired_road')">✅ Repaved Asphalt</button>
+              <button type="button" class="preset-chip" onclick="app.setResolutionProofPhoto('fixed_pipe')">✅ Replaced Valve</button>
+              <button type="button" class="preset-chip" onclick="app.setResolutionProofPhoto('cleared_street')">✅ Cleaned Dumpster</button>
+            </div>
+            <input type="file" id="resolutionPhotoInput" accept="image/*" class="form-control" onchange="app.handleResolutionPhotoUpload(event)">
+            <div id="resPhotoPreview" style="margin-top: 0.5rem; max-height: 120px; overflow: hidden; border-radius: var(--radius-sm); display: none;">
+              <img id="resPhotoImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('adminManageModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes & Notify Citizens</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- 3. SUBMISSION CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-content" style="max-width: 520px; text-align: center;">
+      <div class="modal-body" style="padding: 2.5rem 2rem;">
+        <div style="width: 64px; height: 64px; background: #d1fae5; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+
+        <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Complaint Successfully Lodged!</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+          Google Gemini has analyzed your report, determined the urgency level, and routed it to the municipal operations queue.
+        </p>
+
+        <div style="background: var(--bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 1.75rem;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.25rem;">Your Tracking Code</div>
+          <div style="font-size: 1.6rem; font-family: monospace; font-weight: 800; color: var(--primary);" id="confirmTrackingCode">CR-2026-0107</div>
+          <div style="margin-top: 0.5rem; display: flex; justify-content: center; gap: 0.5rem;">
+            <span class="badge" id="confirmPriorityBadge">Critical</span>
+            <span class="badge" id="confirmDeptBadge" style="background: white; border: 1px solid #c7d2fe; color: #4338ca;">Public Works</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: center;">
+          <button class="btn btn-secondary" onclick="app.copyTrackingCode()">📋 Copy Tracking ID</button>
+          <button class="btn btn-primary" onclick="app.closeModal('confirmModal'); app.viewLatestIssue();">Track Issue Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 4. GEMINI API CONFIGURATION MODAL -->
+  <div class="modal-overlay" id="aiConfigModal">
+    <div class="modal-content" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+          Google Gemini AI Settings
+        </h3>
+        <button class="modal-close" onclick="app.closeModal('aiConfigModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          CivicResolve uses Google Gemini to inspect complaints, detect public hazards, score urgency, and auto-route issues. An advanced rule-based municipal NLP engine is active as an instant zero-config fallback.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" for="apiKeyInput">Google Gemini API Key (Optional)</label>
+          <input type="password" id="apiKeyInput" class="form-control" placeholder="Enter AI Studio API Key (AIzaSy...)">
+          <div class="form-hint">
+            Get a free key from <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" style="color: var(--primary);">Google AI Studio</a>. If blank, CivicResolve's built-in intelligent engine runs seamlessly.
+          </div>
+        </div>
+
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 0.85rem; border-radius: var(--radius-md); font-size: 0.82rem; color: #166534; display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.1rem;">⚡</span>
+          <span>Status: <strong id="modalAiStatusMsg">Smart NLP Engine Active (Ready)</strong></span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="app.closeModal('aiConfigModal')">Close</button>
+        <button type="button" class="btn btn-primary" onclick="app.saveApiKey()">Save Key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none;"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
